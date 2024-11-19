@@ -1,7 +1,9 @@
 const asyncHandler = require('express-async-handler')
+const Transaccion = require('../model/transaccionesModel')
 
 const getTransacciones = asyncHandler(async (req, res) => {
-    res.status(200).json({ message: 'Obtener transacciones' })
+    const transacciones = await Transaccion.find()
+    res.status(200).json(transacciones)
 })
 
 const crearTransaccion = asyncHandler(async (req, res) => {
@@ -9,7 +11,13 @@ const crearTransaccion = asyncHandler(async (req, res) => {
         res.status(400)
         throw new Error("Por favor teclea una descripción")
     }
-    res.status(201).json({ message: 'Se creo transaccion' })
+
+    const transaccion = await Transaccion.create({
+        tipo: req.body.tipo,
+        cantidad: req.body.cantidad
+    })
+
+    res.status(201).json({ transaccion })
 })
 
 const modificarTransaccion = asyncHandler(async (req, res) => {

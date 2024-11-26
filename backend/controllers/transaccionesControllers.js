@@ -21,11 +21,30 @@ const crearTransaccion = asyncHandler(async (req, res) => {
 })
 
 const modificarTransaccion = asyncHandler(async (req, res) => {
-    res.status(200).json({ message: `Se modifico transaccion ${req.params.id}` })
+
+    const transaccion = await Transaccion.findById(req.params.id)
+
+    if (!transaccion) {
+        res.status(400)
+        throw new Error('La tarea no fué encontrada')
+    }
+
+    const transaccionUpdated = await Transaccion.findByIdAndUpdate(req.params.id, req.body, { new: true })
+
+    res.status(200).json(transaccionUpdated)
 })
 
 const eliminarTransaccion = asyncHandler(async (req, res) => {
-    res.status(200).json({ message: `Se elimino transacciones ${req.params.id}` })
+    const transaccion = await Transaccion.findById(req.params.id)
+
+    if (!transaccion) {
+        res.status(400)
+        throw new Error('La tarea no fué encontrada')
+    }
+
+    await Transaccion.deleteOne(transaccion)
+
+    res.status(200).json({ id: transaccion.id })
 })
 
 module.exports = {

@@ -35,6 +35,18 @@ const registrarEmpleado = asyncHandler(async (req, res) => {
     }
 });
 
+const eliminarEmpleado = asyncHandler(async (req, res) => {
+    const empleado = await Empleado.findById(req.params.id)
+
+    if (!empleado) {
+        res.status(400)
+        throw new Error('El empleado no fue encontrado')
+    }
+
+    await Empleado.deleteOne(empleado)
+
+    res.status(200).json({ id: empleado.id })
+})
 
 const obtenerEmpleados = asyncHandler(async (req, res) => {
     const empleados = await Empleado.find()
@@ -43,5 +55,6 @@ const obtenerEmpleados = asyncHandler(async (req, res) => {
 
 module.exports = {
     registrarEmpleado,
-    obtenerEmpleados
+    obtenerEmpleados,
+    eliminarEmpleado
 }

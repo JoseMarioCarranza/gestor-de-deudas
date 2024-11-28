@@ -13,4 +13,4 @@ const empleadoSchema = mongoose.Schema({
     timestamps: true
 })
 
-module.exports = mongoose.mondole('Empleado', empleadoSchema)
+module.exports = mongoose.model('Empleado', empleadoSchema)

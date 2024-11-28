@@ -47,13 +47,45 @@ const registrarUser = asyncHandler(async (req, res) => {
 
 })
 
+/* The `loginUser` function is responsible for handling the login process for a user. Here's a
+breakdown of what it does: */
 const loginUser = asyncHandler(async (req, res) => {
-    res.status(200).json({ message: 'Usuario logueado con exito' })
+
+    const { userName, password } = req.body
+
+    const user = await User.findOne({ userName })
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+        res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            userName: user.userName,
+            token: generarToken(user.id)
+        })
+    } else {
+        res.status(400)
+        throw new Error('Credeciales incorrectas')
+    }
+
 })
 
 const misDatos = asyncHandler(async (req, res) => {
-    res.status(200).json({ message: 'Datos del usuario' })
+    res.status(200).json(req.user)
 })
+
+/**
+ * The function `generarToken` generates a JWT token with a specified ID and expiration time.
+ * @param id - The `id` parameter is typically a unique identifier for a user or entity in the system
+ * for which you are generating a token. This identifier is used to associate the token with a specific
+ * user or entity when it is decoded or verified later on.
+ * @returns A JSON Web Token (JWT) is being returned with the user's ID encoded in it, which expires in
+ * 24 hours.
+ */
+const generarToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+        expiresIn: '24h'
+    })
+}
 
 module.exports = {
     registrarUser,

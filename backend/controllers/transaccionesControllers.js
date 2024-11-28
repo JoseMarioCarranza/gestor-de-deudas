@@ -1,5 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const Transaccion = require('../model/transaccionesModel')
+const Empleado = require('../model/empleadoModel')
+const mongoose = require('mongoose')
 
 const getTransacciones = asyncHandler(async (req, res) => {
     const transacciones = await Transaccion.find()
@@ -7,17 +9,39 @@ const getTransacciones = asyncHandler(async (req, res) => {
 })
 
 const crearTransaccion = asyncHandler(async (req, res) => {
-    if (!req.body.tipo || !req.body.cantidad) {
+    const empleadoId = req.body.empleado
+
+    // Validar el ID como ObjectId
+    if (!mongoose.Types.ObjectId.isValid(empleadoId)) {
         res.status(400)
-        throw new Error("Por favor teclea una descripción")
+        throw new Error("El ID del empleado no es válido")
     }
 
+    // Buscar el empleado
+    const empleadoEncontrado = await Empleado.findById(empleadoId)
+
+    if (!empleadoEncontrado) {
+        res.status(404)
+        throw new Error("Empleado no encontrado")
+    }
+
+    // Crear la transacción
     const transaccion = await Transaccion.create({
+        empleado: empleadoEncontrado._id, // Usar el ObjectId del empleado
         tipo: req.body.tipo,
         cantidad: req.body.cantidad
     })
 
     res.status(201).json({ transaccion })
+})
+
+const getTransaccionesEmpleado = asyncHandler(async (req, res) => {
+
+    //const empleadoId = req.body.empleado
+
+    const transacciones = await Transaccion.find({ empleado: req.body.empleado })
+
+    res.status(200).json(transacciones)
 })
 
 const modificarTransaccion = asyncHandler(async (req, res) => {
@@ -51,5 +75,6 @@ module.exports = {
     getTransacciones,
     crearTransaccion,
     modificarTransaccion,
-    eliminarTransaccion
+    eliminarTransaccion,
+    getTransaccionesEmpleado
 }
